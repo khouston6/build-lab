@@ -1,0 +1,28 @@
+# https://stackoverflow.com/questions/62403030/terraform-wait-till-the-instance-is-reachable
+# https://www.reddit.com/r/ansible/comments/b6jbo6/alternative_to_host_key_checking_false_for_first/
+
+---
+- name: Get new keys
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Sleep for 60 seconds, then begin
+      delegate_to: localhost
+      wait_for:
+        timeout: 60
+
+    - name: Scan for new keys
+      delegate_to: localhost
+      register: host_keys
+      changed_when: false
+      shell: |
+        ssh-keyscan {{ inventory_hostname }}
+    
+    - name: Update known_hosts
+      delegate_to: localhost
+      known_hosts:
+        state: present
+        name: "{{ item }}"
+        key: "{{ host_keys.stdout_lines | select('search','^'~item~' .*$') | join('\n') }}"
+      loop:
+      - "{{ inventory_hostname }}"

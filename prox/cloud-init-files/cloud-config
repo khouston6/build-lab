@@ -1,0 +1,10 @@
+#cloud-config
+
+users:
+  - name: user1
+    groups: users, wheel
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCe8IGMrz1qPghQPZP8izf456GH6Sc2MzqRIA71B+H8Cwyf/YWTXhct4SdBab/39vTdgVotPdYry7m+i5WZzmDAV85oaW9WFuE1Tr7gUy1KeSTZB3KZuoKhjLqWqN60CVDZIqXmUilADNxxZYRVVyKWJeqG2ys9GDftdAok0aymg8wxutJkmFy6e2OddhrgEWpVPHGPLHUbfcpGSmv45Yb7mTltOoMWv9BDMgb0IZb2wqPrxjyCsTQkVHVo47WV36JhgD1mvEeZtG2aM4p8qLl3lJgGdzX7vRwGPFk0AWbvPhdV47x/CJdBrX1B2vPqv12fCnvdrGAX+GU6rY7ZNxp7KQYJqJ10U+r9PFNcRnql7NpI6jIKR/GLUQkCc1c5BMUQiT7d9sZV43QzOJajCVGVpb5nojcqkGa67KIqXnijhXtJX861sys1cCQyRKGpLrmoB5h/kQx4Pk85T9f3IniFnolsOihj8faoY9ObVHbC2hS37E/uNtPLCQmPnmkjkss= prox@localmachine
