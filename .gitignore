@@ -39,3 +39,5 @@ terraform.rc
 **/.ssh/*
 
 **/ansible.cfg
+
+inventory.ini
