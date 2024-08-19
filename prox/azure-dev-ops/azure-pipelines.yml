@@ -1,0 +1,45 @@
+trigger: none  # This pipeline is triggered manually
+
+parameters:
+- name: KERNEL_VERSION
+  type: string
+
+variables:
+- group: ModuleSigningSecrets  # Variable group containing key vault info
+
+jobs:
+- job: CompileAndSignKernelModule
+  pool:
+    name: 'Your-Linux-Agent-Pool'
+
+  steps:
+  - task: AzureKeyVault@2
+    inputs:
+      azureSubscription: 'Your-Azure-Service-Connection'
+      KeyVaultName: 'Your-KeyVault-Name'
+      SecretsFilter: 'ModuleSigningKey'
+    displayName: 'Get Signing Key from Key Vault'
+
+  - script: |
+      echo "Setting up environment for kernel version $(KERNEL_VERSION)"
+      export KERNEL_HEADERS="/path/to/shared/headers/$(KERNEL_VERSION)"
+    displayName: 'Setup Environment'
+
+  - script: |
+      make KERNEL_HEADERS=$KERNEL_HEADERS -f $(Build.SourcesDirectory)/Makefile
+    displayName: 'Compile Kernel Module'
+
+  - script: |
+      # Save the private key to a file
+      echo "$(ModuleSigningKey)" > private_key.priv
+      
+      # Sign the module
+      /usr/src/linux-headers-$(KERNEL_VERSION)/scripts/sign-file sha256 ./private_key.priv ./private_key.der $(Build.SourcesDirectory)/*.ko
+      
+      # Clean up
+      shred -u private_key.priv
+    displayName: 'Sign Kernel Module'
+
+  - publish: $(Build.SourcesDirectory)/*.ko
+    artifact: signed_kernel_module_$(KERNEL_VERSION)
+
