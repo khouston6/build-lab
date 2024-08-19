@@ -50,6 +50,11 @@ locals {
       clone = "fedora37-template"
       ip = "ip=192.168.0.232/24,gw=192.168.0.1"
     }
+    vm4 = {
+      name = "alma9-clone-build"
+      clone = "alma9-template"
+      ip = "ip=192.168.0.233/24,gw=192.168.0.1"
+    }
   }
 }
 
