@@ -17,6 +17,6 @@ fi
 # Trigger Azure DevOps pipeline
 curl -X POST \
   -H "Content-Type: application/json" \
-  -H "Authorization: Basic ${AZURE_DEVOPS_PAT}" \
+  -H "Authorization: Basic [YOUR_TOKEN_HERE_USE_A_VARIABLE]" \
   --data "{\"definition\": {\"id\": 1}, \"parameters\": \"{\\\"KERNEL_VERSION\\\": \\\"$KERNEL_VERSION\\\"}\"}" \
   "https://dev.azure.com/{organization}/{project}/_apis/build/builds?api-version=6.0"
