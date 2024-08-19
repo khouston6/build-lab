@@ -1,0 +1,33 @@
+# Alternative idea, just make the build VM only accessible from the
+# ADO server and store the private key on there.  Lock it down to keep it secure.
+
+trigger: none  # not "don't trigger", just "don't trigger by pushing code, only by script (manually)
+
+parameters:
+- name: KERNEL_VERSION
+  type: string
+
+jobs:
+- job: CompileAndSignKernelModule
+  pool:
+    name: 'Linux-agent-pool'
+
+  steps:
+  - script: |
+      echo "Setting up environment for kernel version $(KERNEL_VERSION)"
+      export KERNEL_HEADERS="/path/to/shared/headers/$(KERNEL_VERSION)"
+    displayName: 'Setup Environment'
+
+  - script: |
+      make KERNEL_HEADERS=$KERNEL_HEADERS -f $(Build.SourcesDirectory)/Makefile
+    displayName: 'Compile Kernel Module'
+
+  - script: |
+      PRIVATE_KEY="/secure/path/to/private_key.priv"
+      
+      # Sign the module
+      /usr/src/linux-headers-$(KERNEL_VERSION)/scripts/sign-file sha256 $PRIVATE_KEY /path/to/public_key.der $(Build.SourcesDirectory)/*.ko
+    displayName: 'Sign Kernel Module'
+
+  - publish: $(Build.SourcesDirectory)/*.ko
+    artifact: signed_kernel_module_$(KERNEL_VERSION)

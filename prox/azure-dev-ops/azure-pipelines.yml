@@ -1,3 +1,7 @@
+# I didn't realize that Azure Vault is only available to subscribers
+# of Azure online.  While we could use Hashicorp Vault, this is the portion
+# of the project I'm trying to use a few external tools as possible.
+
 trigger: none # not "don't trigger", just "don't trigger by pushing code, only by script (manually)
 
 parameters:
@@ -12,9 +16,11 @@ jobs:
   pool:
     name: 'Linux-agent-pool'
 
+  # I misunderstood this part, but this is actually only available in Azure on the web, not on-prem.
   steps:
-  - task: AzureKeyVault
+  - task: AzureKeyVault@2 # the @2 is mandatory!
     inputs:
+      azureSubscription: 'service-connection-for-vault' # This one is mandatory too.  In our case, it specifically means the connection to the server.
       KeyVaultName: 'vault-name'
       SecretsFilter: 'ModuleSigningKey'
     displayName: 'Get Private Key from Vault'
