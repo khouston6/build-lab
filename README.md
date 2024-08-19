@@ -1,6 +1,6 @@
 # build-lab
 
-This is a project primarily to better learn Terraform, Ansible, and Azure DevOps.  Everythign is being run on a Windows 11 computer with WSL2 (Ubuntu 22.04) and Proxmox VE 8.2.4.
+This is a project primarily to better learn Terraform / OpenTofu, Ansible, and Azure DevOps.  Everythign is being run on a Windows 11 computer with WSL2 (Ubuntu 22.04) and Proxmox VE 8.2.4.
 
 Most of this part was borrowed from the wiki: https://pve.proxmox.com/wiki/Cloud-Init_Support
 
