@@ -78,11 +78,11 @@ Step 5: Configure Ansible
 - The last part of the main.tf script is specific to Ansible.  We create an inventory.ini file, run the "collect-keys.yaml" script, and run the "disable-cloudinit.yaml" script.
 
 - BIG NOTE:
-  The ansible/ansible provider is quite lacking in some areas.  You are unable to define the remote_user from within the main.tf script, so it must instead be set systemwide or in the playbook itself.  If your current user's name is   identical to your new user on the VMs (in this case, user1), then this is not neccessary.
-  
-  I had to define the "ansible_ssh_private_key_file" directly in the disable-cloudinit.yaml for things to work.
+  The ansible/ansible provider is quite lacking in some areas.  You are unable to define the remote_user from within the main.tf script, so it must instead be set systemwide or in the playbook itself.  If your current user's name     is identical to your new user on the VMs (in this case, user1), then this is not neccessary.
 
-  Forks of the provider exist, but compatibility with the latest version of OpenTofu appears sporadic at best.  Use at your own risk.
+  I ended up decoupling these tools entirely and using a bash script to call both Terraform and the Ansible playbooks.
+
+  Forks of the provider exist that are supposed to help resolve these issues, but compatibility with the latest version of OpenTofu appears sporadic at best.  Use at your own risk.
 
 
 INVENTORY.INI
@@ -98,12 +98,19 @@ DISABLE-CLOUDINIT.YAML
 - If you reboot your VMs without disabling cloud-init, they will run the cloud-init script on boot each time.  The easiest way to disable this is to create a file at /etc/cloud/cloud-init.disabled
 - This is where that third user account comes into play, as you need to use the private SSH key for the public key you defined in your cloud-config file.
 - This is a good way to test that your key pair works correctly, but that everything up to this point has worked correctly as well.
-- This script will not run until collect-keys.yaml finishes running.
+
+CONFIGURE ANSIBLE.CFG
+- You will want to configure an ansible.cfg file the location where you are running the ansible command.  I defined "private_key_file" and "remote_user" since I am using the same user and key to access all my VMs.
 
 
 Step 6: Run Terraform / OpenTofu
+- Run deploy.sh in the prox directory to build the environment, or follow the individual steps below.
+
 - From within your client-machines directory, run `tofu init` or `terraform init`.  The providers defined in main.tf will be pulled down and copied locally on your machine.
-- Next, run `tofu plan -var-file="/path/to/your/secrets.tfvar"` or `terraform plan -var-file="/path/to/you/secrets.tfvar"`.  If there are any syntax issue with your main.tf, they will likely be caught here.
-- If no errors were found, run `tofu apply -var-file="/path/to/you/secrets.tfvar"` or `terraform apply -var-file="/path/to/you/secrets.tfvar"`.  If everything is working correctly, you should see your VMs get created in Proxmox and your Ansible playbooks run.
+- Next, run `tofu plan -var-file="/path/to/your/secrets.tfvar"` or `terraform plan -var-file="/path/to/your/secrets.tfvar"`.  If there are any syntax issue with your main.tf, they will likely be caught here.
+- If no errors were found, run `tofu apply -var-file="/path/to/your/secrets.tfvar"` or `terraform apply -var-file="/path/to/your/secrets.tfvar"`.
+- Navigate to the ansible directory and `ansible-playbook -i inventory.ini collect-keys.yaml` and `ansible-playbook -i inventory.ini disable-cloudinit.yaml`
 
 Congratulations, you just used Terraform to create VMs on Proxmox and configured them with Cloud-init!  Your Ansible playbooks should also have grabbed the new fingerprints and disabled cloud-init.  Going forward, you can use the inventory.ini file to run more playbooks against your VMs.
+
+To tear down your VMs, navigate to the client-manage directory and run `tofu destroy -var-file"/path/to/your/secrets.tfvar"` or `terraform destroy -var-file="/path/to/your/secrets.tfvar"`

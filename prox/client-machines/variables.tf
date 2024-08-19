@@ -21,9 +21,3 @@ variable "prox_copy_key" {
   type = string
   sensitive = true
 }
-
-variable "vm_user_key" {
-  description = "Private key for user created by cloud-init"
-  type = string
-  sensitive = true
-}

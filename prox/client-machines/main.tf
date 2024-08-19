@@ -143,23 +143,3 @@ resource "local_file" "inventory" {
   filename = "/build-lab/prox/ansible/inventory.ini"
 }
 
-resource "ansible_playbook" "keys" {
-  for_each = proxmox_vm_qemu.cloudinit
-  playbook = "/build-lab/prox/ansible/collect-keys.yaml"
-  name = each.value.default_ipv4_address
-  replayable = true
-}
-
-resource "ansible_playbook" "disable_cloudinit" {
-  depends_on = [
-    ansible_playbook.keys,
-  ]
-  for_each = proxmox_vm_qemu.cloudinit
-  playbook = "/build-lab/prox/ansible/disable-cloudinit.yaml"
-  name = each.value.default_ipv4_address
-
-  extra_vars = {
-    ssh_key = var.vm_user_key
-  }
-}
-
