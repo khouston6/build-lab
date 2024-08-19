@@ -1,24 +1,23 @@
-trigger: none  # This pipeline is triggered manually
+trigger: none # not "don't trigger", just "don't trigger by pushing code, only by script (manually)
 
 parameters:
 - name: KERNEL_VERSION
   type: string
 
 variables:
-- group: ModuleSigningSecrets  # Variable group containing key vault info
+- group: ModuleSigningSecrets
 
 jobs:
 - job: CompileAndSignKernelModule
   pool:
-    name: 'Your-Linux-Agent-Pool'
+    name: 'Linux-agent-pool'
 
   steps:
-  - task: AzureKeyVault@2
+  - task: AzureKeyVault
     inputs:
-      azureSubscription: 'Your-Azure-Service-Connection'
-      KeyVaultName: 'Your-KeyVault-Name'
+      KeyVaultName: 'vault-name'
       SecretsFilter: 'ModuleSigningKey'
-    displayName: 'Get Signing Key from Key Vault'
+    displayName: 'Get Private Key from Vault'
 
   - script: |
       echo "Setting up environment for kernel version $(KERNEL_VERSION)"
