@@ -157,5 +157,9 @@ resource "ansible_playbook" "disable_cloudinit" {
   for_each = proxmox_vm_qemu.cloudinit
   playbook = "/build-lab/prox/ansible/disable-cloudinit.yaml"
   name = each.value.default_ipv4_address
+
+  extra_vars = {
+    ssh_key = var.vm_user_key
+  }
 }
 
